@@ -35,16 +35,23 @@ public struct ChallengeEngine: Sendable {
 
     /// Leaderboard: only public videos created during the challenge window; ties → earlier video wins.
     public func leaderboard(for challenge: Challenge, videos: [Video], blocked: Set<UUID> = []) -> [Entry] {
-        videos.filter {
-            isParticipating($0, in: challenge) && $0.visibility == .everyone && !blocked.contains($0.authorID)
-                && $0.createdAt >= challenge.startsAt && $0.createdAt < challenge.endsAt
+        var list: [Video] = []
+        for v in videos {
+            guard isParticipating(v, in: challenge), v.visibility == .everyone, !blocked.contains(v.authorID) else { continue }
+            guard v.createdAt >= challenge.startsAt, v.createdAt < challenge.endsAt else { continue }
+            list.append(v)
         }
-        .sorted { a, b in
-            let sa = Self.score(a), sb = Self.score(b)
-            return sa == sb ? a.createdAt < b.createdAt : sa > sb
+        list.sort { (a: Video, b: Video) -> Bool in
+            let sa: Int = Self.score(a)
+            let sb: Int = Self.score(b)
+            if sa == sb { return a.createdAt < b.createdAt }
+            return sa > sb
         }
-        .enumerated()
-        .map { Entry(video: $1, rank: $0 + 1, score: Self.score($1)) }
+        var entries: [Entry] = []
+        for (i, v) in list.enumerated() {
+            entries.append(Entry(video: v, rank: i + 1, score: Self.score(v)))
+        }
+        return entries
     }
 
     public func timeRemaining(_ challenge: Challenge, now: Date = Date()) -> TimeInterval {
@@ -133,8 +140,15 @@ public struct SearchEngine: Sendable {
                 counts[t] = (c.0 + 1, c.1 + v.viewsCount)
             }
         }
-        return counts.map { HashtagSummary(tag: $0.key, videoCount: $0.value.0, totalViews: $0.value.1) }
-            .sorted { $0.totalViews == $1.totalViews ? $0.tag < $1.tag : $0.totalViews > $1.totalViews }
+        var list: [HashtagSummary] = []
+        for (tag, value) in counts {
+            list.append(HashtagSummary(tag: tag, videoCount: value.0, totalViews: value.1))
+        }
+        list.sort { (a: HashtagSummary, b: HashtagSummary) -> Bool in
+            if a.totalViews == b.totalViews { return a.tag < b.tag }
+            return a.totalViews > b.totalViews
+        }
+        return list
     }
 
     public func search(_ rawQuery: String, scope: SearchScope = .all, sort: SearchSort = .relevance,

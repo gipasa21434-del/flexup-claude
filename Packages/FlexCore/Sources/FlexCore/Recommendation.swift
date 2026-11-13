@@ -118,26 +118,40 @@ public struct RecommendationEngine: Sendable {
         if let mood = context.mood, video.matches(mood: mood) { s += weights.mood }
         let ageHours = max(0, context.now.timeIntervalSince(video.createdAt) / 3600)
         s += weights.freshness * pow(0.5, ageHours / weights.freshnessHalfLifeHours)
-        let interactions = Double(video.likesCount) + 2 * Double(video.commentsCount)
-            + 3 * Double(video.savesCount) + 3 * Double(video.sharesCount)
-        let rate = interactions / Double(max(video.viewsCount, 50))
-        s += weights.engagement * (log1p(interactions) / 10 + min(rate, 1))
+        let likes: Double = Double(video.likesCount)
+        let comments: Double = 2 * Double(video.commentsCount)
+        let saves: Double = 3 * Double(video.savesCount)
+        let shares: Double = 3 * Double(video.sharesCount)
+        let interactions: Double = likes + comments + saves + shares
+        let rate: Double = interactions / Double(max(video.viewsCount, 50))
+        let engagement: Double = log1p(interactions) / 10 + min(rate, 1)
+        s += weights.engagement * engagement
         if context.interests.seenVideoIDs[video.id] != nil { s -= weights.seenPenalty }
         if video.authorID == context.viewerID { s -= 1 }
         return s
     }
 
     public func rank(_ videos: [Video], context: Context) -> [Video] {
-        let scored = videos.filter { isEligible($0, context: context) }
-            .map { ($0, score($0, context: context)) }
-            .sorted { a, b in a.1 == b.1 ? a.0.createdAt > b.0.createdAt : a.1 > b.1 }
-            .map { $0.0 }
-        return diversify(scored)
+        // Written as simple loops: long closure chains blow up the type checker on CI.
+        var scored: [(video: Video, score: Double)] = []
+        for v in videos where isEligible(v, context: context) {
+            scored.append((v, score(v, context: context)))
+        }
+        scored.sort { (a: (video: Video, score: Double), b: (video: Video, score: Double)) -> Bool in
+            if a.score == b.score { return a.video.createdAt > b.video.createdAt }
+            return a.score > b.score
+        }
+        let ordered: [Video] = scored.map { $0.video }
+        return diversify(ordered)
     }
 
     public func followingFeed(_ videos: [Video], context: Context) -> [Video] {
-        videos.filter { context.following.contains($0.authorID) && isEligible($0, context: context) }
-            .sorted { $0.createdAt > $1.createdAt }
+        var list: [Video] = []
+        for v in videos where context.following.contains(v.authorID) && isEligible(v, context: context) {
+            list.append(v)
+        }
+        list.sort { (a: Video, b: Video) -> Bool in a.createdAt > b.createdAt }
+        return list
     }
 
     /// Greedy re-ranking: picks the best remaining video whose author is not among the last
