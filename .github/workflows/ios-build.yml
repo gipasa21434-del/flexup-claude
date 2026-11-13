@@ -160,11 +160,28 @@ jobs:
             echo "- ⚠️ **IPA требует Apple code signing**: добавь секреты IOS_P12_BASE64, IOS_P12_PASSWORD, IOS_PROVISION_PROFILE_BASE64, IOS_TEAM_ID — тогда job «Signed IPA» соберёт устанавливаемый .ipa."
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Package unsigned IPA (for Sideloadly / AltStore re-signing)
+        run: |
+          # NOT installable as-is: iOS requires a signature. Sideloadly/AltStore re-sign it with the
+          # user's own Apple ID (free account: app works 7 days). The file name says "unsigned" on purpose.
+          rm -rf build/Payload && mkdir -p build/Payload
+          cp -R build/FlexUp.xcarchive/Products/Applications/FlexUp.app build/Payload/
+          (cd build && zip -qry FlexUp-unsigned.ipa Payload)
+          ls -lh build/FlexUp-unsigned.ipa
+          echo "- 📦 \`FlexUp-unsigned.ipa\` — неподписанный, ставится через Sideloadly/AltStore с твоим Apple ID" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload archive
         uses: actions/upload-artifact@v4
         with:
           name: FlexUp-unsigned-xcarchive
           path: build/FlexUp-unsigned.xcarchive.zip
+          retention-days: 14
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: FlexUp-unsigned-ipa-for-sideloadly
+          path: build/FlexUp-unsigned.ipa
           retention-days: 14
 
       - name: Upload test results and logs

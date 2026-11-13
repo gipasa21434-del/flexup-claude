@@ -162,6 +162,10 @@ Workflow `.github/workflows/ios-build.yml` запускается на push в `
 ## Установка на iPhone
 
 Легальные способы (все требуют Apple-подписи):
+- **Sideloadly / AltStore с Windows** — скачай артефакт `FlexUp-unsigned-ipa-for-sideloadly` из Actions,
+  открой `FlexUp-unsigned.ipa` в Sideloadly, войди своим Apple ID — он подпишет и установит. Бесплатный Apple ID:
+  приложение работает 7 дней, затем переустановить. На iPhone включи «Режим разработчика» и доверь профилю в
+  Настройки → Основные → VPN и управление устройством.
 - **Xcode + свой iPhone** — бесплатный Apple ID, сборка живёт 7 дней.
 - **Ad Hoc IPA** — платный Apple Developer Program (на момент написания $99/год — проверь на developer.apple.com),
   UDID iPhone должен быть зарегистрирован в аккаунте и включён в профиль. Установка: Apple Configurator, Finder
