@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "FLEX UP uses the camera only when you record a video or a DUO REACT.";
+"NSMicrophoneUsageDescription" = "The microphone records sound for your video. It is never used outside recording.";
+"NSPhotoLibraryUsageDescription" = "Photo library access lets you pick a video or avatar to post.";
+"NSPhotoLibraryAddUsageDescription" = "FLEX UP can save your finished video to the library when you ask it to.";

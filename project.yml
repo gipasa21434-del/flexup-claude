@@ -1,0 +1,130 @@
+# XcodeGen spec. Generate the project with:  xcodegen generate
+# The generated FlexUp.xcodeproj is committed too, so Xcode users can open it directly.
+name: FlexUp
+options:
+  bundleIdPrefix: app.flexup
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: ru
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+  groupSortPosition: top
+
+configFiles:
+  Debug: Config/Debug.xcconfig
+  Release: Config/Release.xcconfig
+
+packages:
+  FlexCore:
+    path: Packages/FlexCore
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+
+targets:
+  FlexUp:
+    type: application
+    platform: iOS
+    sources:
+      - path: FlexUp
+        excludes:
+          - "Resources/DemoMedia"
+      - path: FlexUp/Resources/DemoMedia
+        type: folder
+        buildPhase: resources
+      # Your own test clips (git-ignored). Bundled only if the folder exists when generating the project.
+      - path: LocalTestMedia
+        type: folder
+        buildPhase: resources
+        optional: true
+    dependencies:
+      - package: FlexCore
+    info:
+      path: FlexUp/Info.plist
+      properties:
+        CFBundleDisplayName: FLEX UP
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDevelopmentRegion: ru
+        CFBundleLocalizations: [ru, en]
+        LSRequiresIPhoneOS: true
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: LaunchLogo
+          UIImageRespectsSafeAreaInsets: true
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UIUserInterfaceStyle: Automatic
+        NSCameraUsageDescription: "FLEX UP использует камеру, только когда ты сам записываешь ролик или DUO REACT."
+        NSMicrophoneUsageDescription: "Микрофон нужен, чтобы в записанном ролике был звук. Без записи он не используется."
+        NSPhotoLibraryUsageDescription: "Доступ к медиатеке нужен, чтобы выбрать видео или аватар для публикации."
+        NSPhotoLibraryAddUsageDescription: "FLEX UP может сохранить твой готовый ролик в медиатеку, если ты попросишь."
+        SUPABASE_URL: https://$(SUPABASE_HOST)
+        SUPABASE_ANON_KEY: $(SUPABASE_ANON_KEY)
+        FLEXUP_BACKEND_MODE: $(FLEXUP_BACKEND_MODE)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(FLEXUP_BUNDLE_ID)
+        PRODUCT_NAME: FlexUp
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: $(FLEXUP_TEAM_ID)
+        ENABLE_PREVIEWS: YES
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+
+  FlexUpTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [FlexUpTests]
+    dependencies:
+      # FlexCore is NOT linked again here: it is already inside the host app (TEST_HOST),
+      # linking a second static copy would duplicate its types at runtime.
+      - target: FlexUp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(FLEXUP_BUNDLE_ID).tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/FlexUp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FlexUp
+        BUNDLE_LOADER: $(TEST_HOST)
+
+  FlexUpUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [FlexUpUITests]
+    dependencies:
+      - target: FlexUp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(FLEXUP_BUNDLE_ID).uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: FlexUp
+
+schemes:
+  FlexUp:
+    build:
+      targets:
+        FlexUp: all
+        FlexUpTests: [test]
+        FlexUpUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      coverageTargets: [FlexUp]
+      targets:
+        - name: FlexUpTests
+        - name: FlexUpUITests
+        - package: FlexCore/FlexCoreTests
+    archive:
+      config: Release

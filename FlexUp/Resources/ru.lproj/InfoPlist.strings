@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "FLEX UP использует камеру, только когда ты сам записываешь ролик или DUO REACT.";
+"NSMicrophoneUsageDescription" = "Микрофон нужен, чтобы в записанном ролике был звук. Без записи он не используется.";
+"NSPhotoLibraryUsageDescription" = "Доступ к медиатеке нужен, чтобы выбрать видео или аватар для публикации.";
+"NSPhotoLibraryAddUsageDescription" = "FLEX UP может сохранить твой готовый ролик в медиатеку, если ты попросишь.";
