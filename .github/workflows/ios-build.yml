@@ -69,7 +69,7 @@ jobs:
       - name: Install psql
         run: sudo apt-get update -q && sudo apt-get install -y -q postgresql-client
       - name: Apply migrations and run tests
-        run: ./scripts/test_database.sh
+        run: bash ./scripts/test_database.sh
 
   # ---------------------------------------------------------------
   # iOS: build, test on Simulator, archive (unsigned)

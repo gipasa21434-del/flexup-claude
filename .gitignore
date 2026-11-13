@@ -27,7 +27,8 @@ Config/Secrets.xcconfig
 ExportOptions.local.plist
 
 # Your own local test clips (may be third-party content — keep them out of git)
-LocalTestMedia/
+LocalTestMedia/*
+!LocalTestMedia/README.md
 
 # Misc
 .DS_Store
