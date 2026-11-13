@@ -85,7 +85,7 @@ brew install xcodegen
 ```
 
 ```bash
-git clone https://github.com/<you>/FLEX-UP.git && cd FLEX-UP && xcodegen generate && open FlexUp.xcodeproj
+git clone https://github.com/<you>/flexup-claude.git && cd FLEX-UP && xcodegen generate && open FlexUp.xcodeproj
 ```
 
 Выбери схему **FlexUp** и симулятор iPhone → Run. Онбординг → «Пропустить» → нажми тестовый аккаунт
@@ -131,12 +131,12 @@ Workflow `.github/workflows/ios-build.yml` запускается на push в `
 установить на iPhone — и мы не выдаём его за IPA.
 
 ### Пошагово от пустого репозитория
-1. github.com → New repository → `FLEX-UP` (лучше Public: для публичных репозиториев стандартные раннеры бесплатны;
+1. github.com → New repository → `flexup-claude` (лучше Public: для публичных репозиториев стандартные раннеры бесплатны;
    в приватных macOS-минуты расходуются с множителем ×10 от бесплатной квоты — проверь актуальные условия в
    Settings → Billing).
 2. Залей код:
    ```bash
-   git remote add origin https://github.com/<you>/FLEX-UP.git
+   git remote add origin https://github.com/<you>/flexup-claude.git
    ```
    ```bash
    git push -u origin main
