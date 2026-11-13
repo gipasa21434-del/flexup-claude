@@ -85,7 +85,7 @@ brew install xcodegen
 ```
 
 ```bash
-git clone https://github.com/<you>/flexup-claude.git && cd FLEX-UP && xcodegen generate && open FlexUp.xcodeproj
+git clone https://github.com/<you>/flexup-claude.git && cd flexup-claude && xcodegen generate && open FlexUp.xcodeproj
 ```
 
 Выбери схему **FlexUp** и симулятор iPhone → Run. Онбординг → «Пропустить» → нажми тестовый аккаунт
